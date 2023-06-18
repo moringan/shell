@@ -1,0 +1,15 @@
+# this is comment
+if ./yes
+then
+    ps -l
+else
+    echo never
+fi
+if ./no
+# here is another comment
+then
+    echo never
+else
+    ls -l
+fi
+echo done
