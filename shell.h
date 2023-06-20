@@ -25,7 +25,7 @@ int     is_control(char *arg);
 int     do_control(char **arglist, int control_command);
 //char   *read_command(FILE *fp);
 void    setup();
-void    setup_child();
+void    setup_child(char **);
 int     put_in_background(char **);
 int     process(char **arglist);
 void    process_special_chars(char *arglist[]);

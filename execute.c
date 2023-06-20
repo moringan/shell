@@ -51,6 +51,7 @@ int execute( char *arglist[] )
         bg = TRUE;
     
     child_pid = fork();
+
     
     switch(child_pid)
     {
@@ -58,22 +59,28 @@ int execute( char *arglist[] )
             perror("fork error");
             exit(1);
         case  0:
-            setup_child();
-            //printf("My pid is %d\n", getpid());
+            setup_child(arglist);
+            /*for (int i = 0; arglist[i] != NULL; i++)
+            {
+                printf("arglist[%d] = %s\n", i, arglist[i] );
+            }*/
+            
             execvp(arglist[0], arglist);
-            perror("execvp  ");
+            perror("execvp ");
             exit(1);
         default:
-            if (bg == FALSE) /* the user has not specified & (not run in background)*/
+            if (bg == FALSE) /* the process is not run in background, so we do call wait() */
             {
+                /* next time we come around, (next process) we'll get the return status of the bg process*/
                 while((returned_child_id = wait(&child_return_status)) != child_pid)
                 {
+                    /* A background process */
                     if (WIFEXITED(child_return_status))
-                        printf("child %d returned with status %d\n", 
+                        fprintf(stdout, "bg child %d returned with status %d\n\n", 
                         returned_child_id, WEXITSTATUS(child_return_status));
                 }
                 if (WIFEXITED(child_return_status))
-                    printf("child %d returned with status %d\n", 
+                    fprintf(stdout, "child %d returned with status %d\n\n", 
                         returned_child_id, WEXITSTATUS(child_return_status));
                 
             }

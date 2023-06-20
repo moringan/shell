@@ -9,6 +9,7 @@
  *      Shell variables - set, export, assign with = (eg TERM=xterm), recall with $
  *      execute a script from command line (shell ./myscript.sh)
  *      comment with #
+ *      redirect stdin and stdout with <, >, and >>
  * 
  *      test first line for shebang
  * 
@@ -37,7 +38,6 @@ int main(int argc, char **args)
     int     return_status;  
     int     num_args;
     int     num_commands;
-//    int     bg = FALSE;
     int     line = 0;
 
     setup();
@@ -63,7 +63,8 @@ int main(int argc, char **args)
         int path_len = strlen(current_dir);
         current_dir[strlen(current_dir)] = '>';
         current_dir[path_len + 1] = ' ';
-        current_dir[path_len + 2] = '\0';  
+        current_dir[path_len + 2] = '\0';
+        printf("\033[31mThis is red text!\033[0m");
 
         /* read command from user and put into argbuf */
         if ((argbuf = readline(current_dir)) == NULL)
@@ -71,6 +72,10 @@ int main(int argc, char **args)
             fprintf(stderr, "read returned NULL\n");
             break;
         }
+        
+        if (argbuf[0] == '\0')
+            fprintf(stdout, "enter\n");
+
         /* If the line has any text in it,
             save it on the history. */
         if (*argbuf) 
@@ -91,17 +96,8 @@ int main(int argc, char **args)
             num_args = tokenize(commands[i], arglist, " ");
             free(commands[i]);
 
-            /* replace $vars with values in the command, replace # with NULL */
+            /* replace $vars with values in the command, replace # with NULL (comments) */
             process_special_chars(arglist);
-
-            /* test for #, if first char on line, test for ! then
-             * save rest of line to string, that is the interpreter
-             * so you then execute the interpreter, sending that
-             * build a command for execvp, first token the /bin/sh
-             * and second the name of the file
-             * 
-            */
-
 
             /* user types quit to exit shell */
             if ( (arglist[0]) && (strcmp(arglist[0], EXIT_STRING) == 0) )
@@ -113,7 +109,9 @@ int main(int argc, char **args)
                 /* run the command! */
                 return_status = process(arglist);
             }
-            
+
+           
+            /* free all arguments in command */
             for(int j = 0; j < num_args; j++)
                 free(arglist[j]);
 
